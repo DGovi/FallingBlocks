@@ -9,8 +9,9 @@ height = 600
 RED = (255, 0, 0)
 BACKGROUND_COLOR = (0, 0, 0)
 
-player_pos = [400, 300]
 player_size = 50
+player_pos = [width / 2, height - 2 * player_size]
+
 
 screen = pygame.display.set_mode((width, height))
 
@@ -30,13 +31,13 @@ while not game_over:
             y = player_pos[1]
 
             if event.key == pygame.K_LEFT:
-                x -= 5
+                x -= player_size
             elif event.key == pygame.K_RIGHT:
-                x += 5
+                x += player_size
             elif event.key == pygame.K_UP:
-                pass
+                y -= 20
             elif event.key == pygame.K_DOWN:
-                pass
+                y += 20
 
             player_pos = [x, y]
 
