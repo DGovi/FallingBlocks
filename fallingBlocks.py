@@ -26,6 +26,34 @@ screen = pygame.display.set_mode((width, height))
 
 game_over = False
 
+score = 0
+
+font = pygame.font.SysFont("monospace", 35)
+
+
+def drop_blocks(enemy_list):
+    delay = random.random()
+    if len(enemy_list) < 10 and delay < 0.2:
+        x_pos = random.randrange(width - enemy_size)
+        y_pos = 0
+        enemy_list.append([x_pos, y_pos])
+
+
+def draw_enemies(enemy_list):
+    for enemy_pos in enemy_list:
+        # define enemy block
+        pygame.draw.rect(screen, BLUE, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+
+
+def update_enemy_position(enemy_list, score):
+    for index, enemy_pos in enumerate(enemy_list):
+        if enemy_pos[1] >= 0 and enemy_pos[1] < height:
+            enemy_pos[1] += falling_speed
+        else:
+            enemy_list.pop(index)
+            score += 1
+    return score
+
 
 def detect_collision(player_pos, enemy_pos):
     p_x = player_pos[0]
@@ -40,33 +68,29 @@ def detect_collision(player_pos, enemy_pos):
     return False
 
 
-def drop_blocks(enemy_list):
-    delay = random.random()
-    if len(enemy_list) < 10 and delay < 0.3:
-        x_pos = random.randrange(width - enemy_size)
-        y_pos = 0
-        enemy_list.append([x_pos, y_pos])
-
-
-def draw_enemies(enemy_list):
-    for enemy_pos in enemy_list:
-        # define enemy block
-        pygame.draw.rect(screen, BLUE, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
-
-
-def update_enemy_position(enemy_list):
-    for index, enemy_pos in enumerate(enemy_list):
-        if enemy_pos[1] >= 0 and enemy_pos[1] < height:
-            enemy_pos[1] += falling_speed
-        else:
-            enemy_list.pop(index)
-
 def collision_check(enemy_list, player_position):
 
     for enemy_pos in enemy_list:
         if detect_collision(enemy_pos, player_pos):
             return True
     return False
+
+
+def set_speed(score, falling_speed):
+    if score < 50:
+        falling_speed = 10
+    elif score <= 100:
+        falling_speed = 12
+    elif score <= 150:
+        falling_speed = 14
+    elif score <= 200:
+        falling_speed = 16
+    elif score <= 250:
+        falling_speed = 18
+    else:
+        falling_speed = 20
+
+    return falling_speed
 
 
 while not game_over:
@@ -101,7 +125,13 @@ while not game_over:
         break
 
     drop_blocks(enemy_list)
-    update_enemy_position(enemy_list)
+
+    score = update_enemy_position(enemy_list, score)
+    falling_speed = set_speed(score, falling_speed)
+    text = "Score: " + str(score)
+    label = font.render(text, 1, RED)
+    screen.blit(label, (width - 200, height - 40))
+
     if collision_check(enemy_list, player_pos):
         game_over = True
 
