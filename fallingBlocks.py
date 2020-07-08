@@ -27,6 +27,8 @@ screen = pygame.display.set_mode((width, height))
 
 score = 0
 
+game_over = False
+
 font = pygame.font.SysFont("monospace", 35)
 
 
@@ -86,63 +88,63 @@ def set_speed(score, falling_speed):
         falling_speed = 16
     elif score <= 250:
         falling_speed = 18
-    else:
+    elif score < 300:
         falling_speed = 20
+    else:
+        falling_speed = 25
 
     return falling_speed
 
 
-def falling_blocks_speed_mode(player_pos, enemy_pos, score, falling_speed):
-    game_over = False
+while not game_over:
 
-    while not game_over:
+    for event in pygame.event.get():
 
-        for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
 
-            if event.type == pygame.QUIT:
-                sys.exit()
+        # move the player
+        if event.type == pygame.KEYDOWN:
 
-            # move the player
-            if event.type == pygame.KEYDOWN:
+            x = player_pos[0]
+            y = player_pos[1]
 
-                x = player_pos[0]
-                y = player_pos[1]
+            if event.key == pygame.K_LEFT and x > 0:
+                if x - player_size < 0:
+                    x = 0
+                x -= player_size
+            elif event.key == pygame.K_RIGHT and x < width:
+                if x + 2 * player_size > width:
+                    x = width - 2 * player_size
+                x += player_size
+            elif event.key == pygame.K_UP:
+                y -= 20
+            elif event.key == pygame.K_DOWN:
+                y += 20
 
-                if event.key == pygame.K_LEFT:
-                    x -= player_size
-                elif event.key == pygame.K_RIGHT:
-                    x += player_size
-                elif event.key == pygame.K_UP:
-                    y -= 20
-                elif event.key == pygame.K_DOWN:
-                    y += 20
+            player_pos = [x, y]
 
-                player_pos = [x, y]
+    # define the background color after every event
+    screen.fill(BACKGROUND_COLOR)
 
-        # define the background color after every event
-        screen.fill(BACKGROUND_COLOR)
+    if detect_collision(player_pos, enemy_pos):
+        game_over = True
+        break
 
-        if detect_collision(player_pos, enemy_pos):
-            game_over = True
-            break
+    drop_blocks(enemy_list)
 
-        drop_blocks(enemy_list)
+    score = update_enemy_position(enemy_list, score)
+    falling_speed = set_speed(score, falling_speed)
+    text = "Score: " + str(score)
+    label = font.render(text, 1, RED)
+    screen.blit(label, (width - 200, height - 40))
 
-        score = update_enemy_position(enemy_list, score)
-        falling_speed = set_speed(score, falling_speed)
-        text = "Score: " + str(score)
-        label = font.render(text, 1, RED)
-        screen.blit(label, (width - 200, height - 40))
+    if collision_check(enemy_list, player_pos):
+        game_over = True
 
-        if collision_check(enemy_list, player_pos):
-            game_over = True
+    draw_enemies(enemy_list)
+    # defnie player block
+    pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
 
-        draw_enemies(enemy_list)
-        # defnie player block
-        pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
-
-        clock.tick(30)
-        pygame.display.update()
-
-
-falling_blocks_speed_mode(player_pos, enemy_pos, score, falling_speed)
+    clock.tick(30)
+    pygame.display.update()
