@@ -10,11 +10,12 @@ height = 600
 RED = (255, 0, 0)
 BACKGROUND_COLOR = (0, 0, 0)
 BLUE = (0, 0, 255)
+YELLOW = (0, 255, 255)
 
-player_size = 50
+player_size = 30
 player_pos = [width / 2, height - player_size * 2]
 
-enemy_size = 50
+enemy_size = 30
 enemy_pos = [random.randrange(width - enemy_size), 0]
 enemy_list = [enemy_pos]
 
@@ -23,8 +24,6 @@ falling_speed = 10
 clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode((width, height))
-
-game_over = False
 
 score = 0
 
@@ -42,7 +41,7 @@ def drop_blocks(enemy_list):
 def draw_enemies(enemy_list):
     for enemy_pos in enemy_list:
         # define enemy block
-        pygame.draw.rect(screen, BLUE, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+        pygame.draw.rect(screen, YELLOW, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
 
 
 def update_enemy_position(enemy_list, score):
@@ -62,13 +61,13 @@ def detect_collision(player_pos, enemy_pos):
     e_x = enemy_pos[0]
     e_y = enemy_pos[1]
 
-    if (e_x >= p_x and e_x < (p_x + player_size)) or ((p_x >= e_x) and p_x < (e_x + enemy_size)):
-        if (e_y >= p_y) and e_y < (p_y + player_size) or (p_y >= e_y) and p_y < (e_y + enemy_size):
+    if (e_x > p_x and e_x < (p_x + player_size)) or ((p_x > e_x) and p_x < (e_x + enemy_size)):
+        if (e_y > p_y and e_y < (p_y + player_size)) or ((p_y > e_y) and p_y < (e_y + enemy_size)):
             return True
     return False
 
 
-def collision_check(enemy_list, player_position):
+def collision_check(enemy_list, player_pos):
 
     for enemy_pos in enemy_list:
         if detect_collision(enemy_pos, player_pos):
@@ -93,51 +92,57 @@ def set_speed(score, falling_speed):
     return falling_speed
 
 
-while not game_over:
+def falling_blocks_speed_mode(player_pos, enemy_pos, score, falling_speed):
+    game_over = False
 
-    for event in pygame.event.get():
+    while not game_over:
 
-        if event.type == pygame.QUIT:
-            sys.exit()
+        for event in pygame.event.get():
 
-        # move the player
-        if event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
+                sys.exit()
 
-            x = player_pos[0]
-            y = player_pos[1]
+            # move the player
+            if event.type == pygame.KEYDOWN:
 
-            if event.key == pygame.K_LEFT:
-                x -= player_size
-            elif event.key == pygame.K_RIGHT:
-                x += player_size
-            elif event.key == pygame.K_UP:
-                y -= 20
-            elif event.key == pygame.K_DOWN:
-                y += 20
+                x = player_pos[0]
+                y = player_pos[1]
 
-            player_pos = [x, y]
+                if event.key == pygame.K_LEFT:
+                    x -= player_size
+                elif event.key == pygame.K_RIGHT:
+                    x += player_size
+                elif event.key == pygame.K_UP:
+                    y -= 20
+                elif event.key == pygame.K_DOWN:
+                    y += 20
 
-    # define the background color after every event
-    screen.fill(BACKGROUND_COLOR)
+                player_pos = [x, y]
 
-    if detect_collision(player_pos, enemy_pos):
-        game_over = True
-        break
+        # define the background color after every event
+        screen.fill(BACKGROUND_COLOR)
 
-    drop_blocks(enemy_list)
+        if detect_collision(player_pos, enemy_pos):
+            game_over = True
+            break
 
-    score = update_enemy_position(enemy_list, score)
-    falling_speed = set_speed(score, falling_speed)
-    text = "Score: " + str(score)
-    label = font.render(text, 1, RED)
-    screen.blit(label, (width - 200, height - 40))
+        drop_blocks(enemy_list)
 
-    if collision_check(enemy_list, player_pos):
-        game_over = True
+        score = update_enemy_position(enemy_list, score)
+        falling_speed = set_speed(score, falling_speed)
+        text = "Score: " + str(score)
+        label = font.render(text, 1, RED)
+        screen.blit(label, (width - 200, height - 40))
 
-    draw_enemies(enemy_list)
-    # defnie player block
-    pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
+        if collision_check(enemy_list, player_pos):
+            game_over = True
 
-    clock.tick(30)
-    pygame.display.update()
+        draw_enemies(enemy_list)
+        # defnie player block
+        pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
+
+        clock.tick(30)
+        pygame.display.update()
+
+
+falling_blocks_speed_mode(player_pos, enemy_pos, score, falling_speed)
