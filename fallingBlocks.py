@@ -9,11 +9,10 @@ height = 600
 
 RED = (255, 0, 0)
 BACKGROUND_COLOR = (0, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (0, 255, 255)
+BRIGHTBLUE = (0, 255, 255)
 
 player_size = 30
-player_pos = [width / 2, height - player_size * 2]
+player_pos = [width / 2 - player_size, height - player_size * 2]
 
 enemy_size = 30
 enemy_pos = [random.randrange(width - enemy_size), 0]
@@ -43,7 +42,7 @@ def drop_blocks(enemy_list):
 def draw_enemies(enemy_list):
     for enemy_pos in enemy_list:
         # define enemy block
-        pygame.draw.rect(screen, YELLOW, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+        pygame.draw.rect(screen, BRIGHTBLUE, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
 
 
 def update_enemy_position(enemy_list, score):
